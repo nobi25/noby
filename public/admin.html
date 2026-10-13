@@ -3,48 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم</title>
+  <title>لوحة التحكم - Noby</title>
   <style>
-    :root { --bg: #0f1115; --card: #161922; --border: #282c39; --field: #0d0f14; --text: #e8eaed; --gold: #e0a96d; --gold-hover: #c69259; }
+    :root { --bg: #0f1115; --card: #161922; --border: #282c39; --field: #0d0f14; --text: #e8eaed; --gold: #e0a96d; --gold-hover: #c69259; --ok: #4caf50; --err: #f44336;}
     * { box-sizing: border-box; }
     html, body { background: var(--bg); color: var(--text); margin: 0; padding: 0; font-family: system-ui, sans-serif; min-height: 100vh; overflow-y: auto; }
     .wrap { width: 100%; max-width: 520px; margin: 0 auto; padding: 24px 16px 80px 16px; }
-    h2 { color: var(--gold); margin-top: 0; font-size: 22px; }
+    h2 { color: var(--gold); margin-top: 0; font-size: 22px; text-align: center; margin-bottom: 24px;}
     h3 { margin-top: 0; color: var(--gold); font-size: 16px; margin-bottom: 12px; }
-    .card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .card { background: var(--card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
     .card.gold-border { border-color: var(--gold); }
-    label { display: block; font-size: 13px; margin-bottom: 6px; color: #a0a5b5; }
-    input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: #fff; font-size: 14px; display: block; }
-    input:focus { outline: 2px solid var(--gold); }
-    button { width: 100%; padding: 12px; background: var(--gold); color: #111; font-weight: bold; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #a0a5b5; font-weight: bold;}
+    input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: #fff; font-size: 14px; display: block; }
+    input:focus { outline: 2px solid var(--gold); border-color: transparent;}
+    button { width: 100%; padding: 14px; background: var(--gold); color: #111; font-weight: bold; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 10px; transition: background 0.2s;}
     button:hover { background: var(--gold-hover); }
-    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-blue { background: #2196f3; color: white; }
     .btn-blue:hover { background: #1976d2; }
-    .msg { font-size: 13px; margin-top: 8px; line-height: 1.5; word-break: break-word; }
+    .msg { font-size: 14px; margin-top: 10px; line-height: 1.5; word-break: break-word; font-weight: bold; text-align: center;}
+    .step-log { font-size: 12px; color: #a0a5b5; margin-top: 8px; background: #0d0f14; padding: 8px; border-radius: 4px; display: none; text-align: left; direction: ltr;}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h2>لوحة تحكم الموقع</h2>
+    <h2>👑 لوحة تحكم Noby</h2>
 
     <div class="card" id="authBox">
       <h3>🔐 تسجيل دخول الإدارة</h3>
       <label>اسم المستخدم أو البريد الإلكتروني</label>
-      <input type="text" id="adminUser" placeholder="أدخل البريد، مثلاً: cfgf6463@gmail.com">
+      <input type="text" id="adminUser" placeholder="مثال: cfgf6463@gmail.com">
       <label>كلمة المرور</label>
-      <input type="password" id="adminPass" placeholder="أدخل كلمة المرور">
+      <input type="password" id="adminPass" placeholder="••••••••">
       <button type="button" id="loginBtn">تسجيل الدخول</button>
       <button type="button" id="registerBtn" class="btn-blue">إنشاء الحساب (لأول مرة فقط)</button>
       <div id="loginMsg" class="msg"></div>
     </div>
 
     <div class="card gold-border">
-      <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
-      <label>رابط العمل من MangaDex أو المعرف</label>
-      <input type="text" id="fullMangaUrl" placeholder="الصق الرابط هنا" dir="ltr">
-      <button type="button" id="importBtn">جلب البيانات والغلاف تلقائياً</button>
+      <h3>🚀 سحب مانجا شامل (عبر Proxy)</h3>
+      <label>رابط العمل من MangaDex</label>
+      <input type="text" id="fullMangaUrl" placeholder="https://mangadex.org/title/..." dir="ltr">
+      <button type="button" id="importBtn">🔥 سحب المانجا والفصول الان 🔥</button>
       <div id="importMsg" class="msg"></div>
+      <div id="importLog" class="step-log"></div>
     </div>
 
     <div class="card">
@@ -66,6 +68,13 @@
     'use strict';
     const $ = (id) => document.getElementById(id);
     function show(el, color, text) { el.style.color = color; el.textContent = text; }
+    
+    function logStep(text) {
+        const logEl = $('importLog');
+        logEl.style.display = 'block';
+        logEl.innerHTML += `<div>> ${text}</div>`;
+        logEl.scrollTop = logEl.scrollHeight;
+    }
 
     async function postData(url, data) {
       const res = await fetch(url, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -93,23 +102,37 @@
       } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
     });
 
-    // السحب الذكي من المتصفح لتجاوز حظر السيرفرات
+    // سحب ذكي باستخدام Proxy لتجاوز كل الحمايات!
     $('importBtn').addEventListener('click', async () => {
-      const btn = $('importBtn'); const msg =$('importMsg');
-      const raw = $('fullMangaUrl').value.trim();
-      const match = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      const btn = $('importBtn'); 
+      const msg = $('importMsg');
+      const logEl = $('importLog');
+      
+      const rawUrl = $('fullMangaUrl').value.trim();
+      // إصلاح الرابط إذا كان يحتوي على أقواس [ ]
+      const cleanUrl = rawUrl.replace(/[\[\]]/g, '');
+      const match = cleanUrl.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
       
       if (!match) return show(msg, 'orange', '⚠️ الرابط لا يحتوي على معرف مانجا صالح!');
       const mangaId = match[0];
 
-      show(msg, '#e0a96d', '⏳ متصفحك يقوم الآن بسحب البيانات لتخطي الحظر...');
+      logEl.innerHTML = '';
+      show(msg, '#e0a96d', '⏳ جاري اختراق حماية MangaDex عبر الوسيط...');
+      logStep('Starting proxy connection...');
       btn.disabled = true;
 
+      // استخدام AllOrigins كممر سري (Proxy)
+      const proxy = 'https://api.allorigins.win/get?url=';
+      
       try {
-        // 1. سحب الاسم
-        let res = await fetch('https://api.mangadex.org/manga/' + mangaId);
-        if (!res.ok) throw new Error('MangaDex يرفض الطلب');
-        let data = await res.json();
+        logStep('Fetching basic details...');
+        // 1. سحب الاسم عبر الوسيط
+        let targetUrl = encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}`);
+        let res = await fetch(proxy + targetUrl);
+        if (!res.ok) throw new Error('الوسيط فشل في الاتصال');
+        
+        let proxyData = await res.json();
+        let data = JSON.parse(proxyData.contents);
         
         const attr = data.data.attributes;
         const titleEn = attr.title.en || Object.values(attr.title)[0] || 'بدون عنوان';
@@ -118,47 +141,62 @@
           const arTitle = attr.altTitles.find(t => t.ar);
           if (arTitle) titleAr = arTitle.ar;
         }
+        logStep(`Found Title: ${titleAr}`);
 
         // 2. سحب الغلاف
         let coverUrl = '';
         const coverRel = data.data.relationships.find(r => r.type === 'cover_art');
         if (coverRel) {
           try {
-            let cRes = await fetch('https://api.mangadex.org/cover/' + coverRel.id);
+            logStep('Fetching cover data...');
+            let cTargetUrl = encodeURIComponent(`https://api.mangadex.org/cover/${coverRel.id}`);
+            let cRes = await fetch(proxy + cTargetUrl);
             if (cRes.ok) {
-              let cData = await cRes.json();
+              let cProxyData = await cRes.json();
+              let cData = JSON.parse(cProxyData.contents);
               coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
+              logStep('Cover found!');
             }
-          } catch(e){} 
+          } catch(e){ logStep('Cover skip: ' + e.message); } 
         }
 
-        show(msg, '#e0a96d', '⏳ جاري استخراج الفصول...');
-        // 3. سحب الفصول (إلى 300 فصل)
+        show(msg, '#e0a96d', '⏳ جاري تجميع الفصول...');
+        
+        // 3. سحب الفصول (عبر الوسيط)
         let chapters = [];
         try {
-          let chRes = await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
+          logStep('Fetching chapters list...');
+          let chTargetUrl = encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
+          let chRes = await fetch(proxy + chTargetUrl);
+          
           if (chRes.ok) {
-            let chData = await chRes.json();
+            let chProxyData = await chRes.json();
+            let chData = JSON.parse(chProxyData.contents);
             const list = chData.data || [];
             for (const ch of list) {
               chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
             }
+            logStep(`Found ${chapters.length} chapters.`);
           }
-        } catch(e){} 
+        } catch(e){ logStep('Chapters skip: ' + e.message); } 
 
-        show(msg, '#e0a96d', '⏳ جاري إرسالها وحفظها في قاعدة بيانات موقعك...');
+        show(msg, '#e0a96d', '⏳ جاري الحفظ في قاعدة بيانات موقعك...');
+        logStep('Sending to local DB...');
         
         // 4. تسليمها للسيرفر الخاص بك
         const saveRes = await postData('/api/admin/save-scraped-manga', { mangaId, title_ar: titleAr, title_en: titleEn, cover_url: coverUrl, chapters });
 
         if (saveRes.res.ok && saveRes.json.ok) {
-          show(msg, '#4caf50', `✅ اكتمل السحر! تم سحب "${titleAr}" وحفظ (${saveRes.json.chaptersSaved}) فصل بنجاح!`);
+          show(msg, '#4caf50', `✅ تمت العملية بنجاح! تم سحب "${titleAr}" وحفظ (${saveRes.json.chaptersSaved}) فصل!`);
           $('fullMangaUrl').value = '';
+          logStep('DONE SUCCESS!');
         } else {
           show(msg, '#f44336', '❌ فشل في حفظ البيانات: ' + (saveRes.json.error || ''));
+          logStep('DB Save Failed!');
         }
       } catch (e) {
         show(msg, '#f44336', '❌ فشل السحب: ' + e.message);
+        logStep('ERROR: ' + e.message);
       } finally {
         btn.disabled = false;
       }
