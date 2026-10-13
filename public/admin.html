@@ -82,6 +82,39 @@
       return { res, json };
     }
 
+    // دالة التوقف المؤقت لخداع نظام الحماية
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // دالة الوسيط المتعددة والمحصنة
+    async function fetchWithProxy(targetUrl) {
+      const encoded = encodeURIComponent(targetUrl);
+      const proxies = [
+        `https://api.allorigins.win/get?url=${encoded}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encoded}`,
+        `https://corsproxy.io/?${encoded}`
+      ];
+
+      for (let proxy of proxies) {
+        try {
+          let res = await fetch(proxy);
+          if (res.ok) {
+            let textData = await res.text();
+            try {
+              let jsonData = JSON.parse(textData);
+              // استخراج البيانات المخفية في allorigins
+              if (jsonData.contents) {
+                  return JSON.parse(jsonData.contents);
+              }
+              return jsonData;
+            } catch(e) { return JSON.parse(textData); }
+          }
+        } catch(e) {
+          // في حال فشل الوسيط الأول، ينتقل بصمت للثاني
+        }
+      }
+      throw new Error('فشل جلب البيانات');
+    }
+
     $('loginBtn').addEventListener('click', async () => {
       const btn = $('loginBtn'); const msg =$('loginMsg');
       show(msg, '#e0a96d', 'جاري التحقق...'); btn.disabled = true;
@@ -102,14 +135,12 @@
       } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
     });
 
-    // سحب ذكي باستخدام Proxy لتجاوز كل الحمايات!
     $('importBtn').addEventListener('click', async () => {
       const btn = $('importBtn'); 
       const msg = $('importMsg');
       const logEl = $('importLog');
       
       const rawUrl = $('fullMangaUrl').value.trim();
-      // إصلاح الرابط إذا كان يحتوي على أقواس [ ]
       const cleanUrl = rawUrl.replace(/[\[\]]/g, '');
       const match = cleanUrl.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
       
@@ -117,23 +148,14 @@
       const mangaId = match[0];
 
       logEl.innerHTML = '';
-      show(msg, '#e0a96d', '⏳ جاري اختراق حماية MangaDex عبر الوسيط...');
-      logStep('Starting proxy connection...');
+      show(msg, '#e0a96d', '⏳ جاري السحب بهدوء تام لتجنب الحظر...');
+      logStep('Starting stealth proxy connection...');
       btn.disabled = true;
 
-      // استخدام AllOrigins كممر سري (Proxy)
-      const proxy = 'https://api.allorigins.win/get?url=';
-      
       try {
-        logStep('Fetching basic details...');
-        // 1. سحب الاسم عبر الوسيط
-        let targetUrl = encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}`);
-        let res = await fetch(proxy + targetUrl);
-        if (!res.ok) throw new Error('الوسيط فشل في الاتصال');
-        
-        let proxyData = await res.json();
-        let data = JSON.parse(proxyData.contents);
-        
+        // 1. سحب الاسم
+        logStep('Fetching manga details...');
+        let data = await fetchWithProxy(`https://api.mangadex.org/manga/${mangaId}`);
         const attr = data.data.attributes;
         const titleEn = attr.title.en || Object.values(attr.title)[0] || 'بدون عنوان';
         let titleAr = titleEn;
@@ -141,47 +163,42 @@
           const arTitle = attr.altTitles.find(t => t.ar);
           if (arTitle) titleAr = arTitle.ar;
         }
-        logStep(`Found Title: ${titleAr}`);
+        logStep(`Title: ${titleAr}`);
+
+        // انتظار لمدة ثانية واحدة لخداع الحماية
+        await sleep(1000);
 
         // 2. سحب الغلاف
         let coverUrl = '';
         const coverRel = data.data.relationships.find(r => r.type === 'cover_art');
         if (coverRel) {
           try {
-            logStep('Fetching cover data...');
-            let cTargetUrl = encodeURIComponent(`https://api.mangadex.org/cover/${coverRel.id}`);
-            let cRes = await fetch(proxy + cTargetUrl);
-            if (cRes.ok) {
-              let cProxyData = await cRes.json();
-              let cData = JSON.parse(cProxyData.contents);
-              coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
-              logStep('Cover found!');
-            }
+            logStep('Fetching cover URL...');
+            let cData = await fetchWithProxy(`https://api.mangadex.org/cover/${coverRel.id}`);
+            coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
+            logStep('Cover found!');
           } catch(e){ logStep('Cover skip: ' + e.message); } 
         }
 
+        // انتظار لمدة ثانية أخرى
+        await sleep(1000);
+
         show(msg, '#e0a96d', '⏳ جاري تجميع الفصول...');
         
-        // 3. سحب الفصول (عبر الوسيط)
+        // 3. سحب الفصول
         let chapters = [];
         try {
-          logStep('Fetching chapters list...');
-          let chTargetUrl = encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
-          let chRes = await fetch(proxy + chTargetUrl);
-          
-          if (chRes.ok) {
-            let chProxyData = await chRes.json();
-            let chData = JSON.parse(chProxyData.contents);
-            const list = chData.data || [];
-            for (const ch of list) {
-              chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
-            }
-            logStep(`Found ${chapters.length} chapters.`);
+          logStep('Fetching chapters...');
+          let chData = await fetchWithProxy(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
+          const list = chData.data || [];
+          for (const ch of list) {
+            chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
           }
+          logStep(`Found ${chapters.length} chapters.`);
         } catch(e){ logStep('Chapters skip: ' + e.message); } 
 
         show(msg, '#e0a96d', '⏳ جاري الحفظ في قاعدة بيانات موقعك...');
-        logStep('Sending to local DB...');
+        logStep('Saving to your server...');
         
         // 4. تسليمها للسيرفر الخاص بك
         const saveRes = await postData('/api/admin/save-scraped-manga', { mangaId, title_ar: titleAr, title_en: titleEn, cover_url: coverUrl, chapters });
@@ -192,7 +209,6 @@
           logStep('DONE SUCCESS!');
         } else {
           show(msg, '#f44336', '❌ فشل في حفظ البيانات: ' + (saveRes.json.error || ''));
-          logStep('DB Save Failed!');
         }
       } catch (e) {
         show(msg, '#f44336', '❌ فشل السحب: ' + e.message);
