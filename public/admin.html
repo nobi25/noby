@@ -16,7 +16,6 @@
     label{display:block;font-size:13px;margin-bottom:6px;color:#b8bcc6}
     input,button{width:100%;padding:12px;margin-bottom:12px;border-radius:8px;border:1px solid var(--field-line);background:var(--field);color:#fff;font-size:14px;font-family:inherit}
     input:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-    input[aria-invalid="true"]{border-color:var(--err)}
     button{background:var(--gold);color:#111;font-weight:bold;cursor:pointer;border:none}
     button:hover:not(:disabled){background:var(--gold-hover)}
     button:disabled{opacity:.55;cursor:not-allowed}
@@ -27,131 +26,7 @@
   <div class="wrap">
     <h2>لوحة التحكم</h2>
 
-    <!-- سحب مانجا كاملة من MangaDex -->
-    <div class="card accent">
-      <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
-      <label for="fullMangaUrl">رابط المانجا</label>
-      <input type="url" id="fullMangaUrl" placeholder="https://mangadex.org/title/..." autocomplete="off" dir="ltr">
-      <button type="button" id="importBtn">جلب البيانات والغلاف تلقائياً</button>
-      <div id="importMsg" class="msg" role="status" aria-live="polite"></div>
-    </div>
-
-    <!-- إضافة عمل يدوياً -->
-    <div class="card">
-      <h3>إضافة عمل يدوياً</h3>
-      <label for="mTitleAr">عنوان العمل (عربي) *</label>
-      <input type="text" id="mTitleAr" autocomplete="off">
-      <label for="mTitleEn">العنوان (إنجليزي)</label>
-      <input type="text" id="mTitleEn" dir="ltr" autocomplete="off">
-      <label for="mCover">رابط صورة الغلاف المباشر (https)</label>
-      <input type="url" id="mCover" dir="ltr" autocomplete="off">
-      <label for="mRating">التقييم (من 0 إلى 10)</label>
-      <input type="number" id="mRating" min="0" max="10" step="0.1" placeholder="9.5">
-      <button type="button" id="saveBtn">حفظ العمل</button>
-      <div id="manualMsg" class="msg" role="status" aria-live="polite"></div>
-    </div>
-  </div>
-
-  <script>
-    'use strict';
-    const REQUEST_TIMEOUT_MS = 25000;
-    const MANGADEX_RE = /title\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
-    const COLORS = { ok: '#4caf50', err: '#f44336', warn: 'orange', info: '#e0a96d' };
-    const busy = new Set();
-
-    const $ = (id) => document.getElementById(id);
-
-    function show(el, type, text) {
-      el.style.color = COLORS[type] || COLORS.info;
-      el.textContent = text;
-    }
-
-    async function guarded(key, btn, fn) {
-      if (busy.has(key)) return;
-      busy.add(key);
-      btn.disabled = true;
-      try { await fn(); }
-      finally { busy.delete(key); btn.disabled = false; }
-    }
-
-    async function api(path, payload) {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-      try {
-        const res = await fetch(path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: ctrl.signal
-        });
-        const data = await res.json().catch(() => null);
-        return { res, data };
-      } catch (err) {
-        if (err && err.name === 'AbortError') return { ok: false, error: 'انتهت المهلة، الخادم يستغرق وقتاً طويلاً.' };
-        return { ok: false, error: 'تعذر الاتصال بالسيرفر.' };
-      } finally {
-        clearTimeout(timer);
-      }
-    }
-
-    async function importEntireManga() {
-      const urlInput = $('fullMangaUrl');
-      const msg = $('importMsg');
-      const raw = urlInput.value.trim();
-
-      const match = raw.match(MANGADEX_RE);
-      if (!match) {
-        urlInput.setAttribute('aria-invalid', 'true');
-        show(msg, 'warn', 'صيغة الرابط غير صحيحة! يجب أن يحتوي على معرف المانجا.');
-        return;
-      }
-      urlInput.setAttribute('aria-invalid', 'false');
-
-      show(msg, 'info', '⏳ جاري سحب البيانات والغلاف من MangaDex...');
-      const out = await api('/api/admin/auto-import-manga', { mangaUrl: raw });
-
-      if (out.res && out.res.ok && out.data && out.data.ok) {
-        const title = out.data.data.title || '';
-        const id = out.data.data.mangaId || '';
-        show(msg, 'ok', `✅ تم سحب العمل بنجاح! الاسم: [${title}] (المعرف: ${id})`);
-        urlInput.value = '';
-      } else {
-        const err = out.error || (out.data && out.data.error) || 'فشلت عملية السحب';
-        show(msg, 'err', '❌ خطأ: ' + err);
-      }
-    }
-
-    async function addMangaManual() {
-      const msg = $('manualMsg');
-      const titleAr = $('mTitleAr').value.trim();
-      const titleEn = $('mTitleEn').value.trim();
-      const coverUrl = $('mCover').value.trim();
-      const ratingRaw = $('mRating').value.trim();
-
-      if (!titleAr) {
-        show(msg, 'warn', 'العنوان العربي مطلوب!');
-        return;
-      }
-
-      show(msg, 'info', '⏳ جاري حفظ العمل...');
-      const out = await api('/api/admin/manga', {
-        title_ar: titleAr,
-        title_en: titleEn,
-        cover_url: coverUrl,
-        rating: Number(ratingRaw) || 9
-      });
-
-      if (out.res && out.res.ok) {
-        show(msg, 'ok', '✅ تم حفظ العمل بنجاح!');
-        ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = '');
-      } else {
-        const err = out.error || (out.data && out.data.error) || 'فشل الحفظ';
-        show(msg, 'err', '❌ خطأ: ' + err);
-      }
-    }
-
-    $('importBtn').addEventListener('click', (e) => guarded('import', e.currentTarget, importEntireManga));$('saveBtn').addEventListener('click', (e) => guarded('save', e.currentTarget, addMangaManual));
-  </script>
-</body>
-  </html>
-  
+    <div class="card" id="authBox">
+      <h3>🔐 تسجيل دخول الإدارة</h3>
+      <input type="text" id="adminUser" placeholder="اسم المستخدم أو البريد" autocomplete="username">
+      <input type="password" id="adminPass" placeholder="كلمة المرور"
