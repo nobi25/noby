@@ -65,9 +65,12 @@
       border: none;
       font-size: 15px;
       cursor: pointer;
+      margin-bottom: 8px;
     }
     button:hover { background: var(--gold-hover); }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-blue { background: #2196f3; color: white; }
+    .btn-blue:hover { background: #1976d2; }
     .msg { font-size: 13px; margin-top: 8px; line-height: 1.5; word-break: break-word; }
   </style>
 </head>
@@ -79,10 +82,11 @@
     <div class="card" id="authBox">
       <h3>🔐 تسجيل دخول الإدارة</h3>
       <label>اسم المستخدم أو البريد الإلكتروني</label>
-      <input type="text" id="adminUser" placeholder="أدخل البريد أو اسم المستخدم">
+      <input type="text" id="adminUser" placeholder="أدخل البريد، مثلاً: cfgf6463@gmail.com">
       <label>كلمة المرور</label>
       <input type="password" id="adminPass" placeholder="أدخل كلمة المرور">
       <button type="button" id="loginBtn">تسجيل الدخول</button>
+      <button type="button" id="registerBtn" class="btn-blue">إنشاء الحساب (لأول مرة فقط)</button>
       <div id="loginMsg" class="msg"></div>
     </div>
 
@@ -90,7 +94,7 @@
     <div class="card gold-border">
       <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
       <label>رابط العمل من MangaDex أو المعرف</label>
-      <input type="text" id="fullMangaUrl" placeholder="الصق الرابط هنا (يقبل روابط المشاركة أيضاً)" dir="ltr">
+      <input type="text" id="fullMangaUrl" placeholder="الصق الرابط هنا" dir="ltr">
       <button type="button" id="importBtn">جلب البيانات والغلاف تلقائياً</button>
       <div id="importMsg" class="msg"></div>
     </div>
@@ -131,7 +135,7 @@
       return { res, json };
     }
 
-    // تسجيل الدخول
+    // زر تسجيل الدخول
     $('loginBtn').addEventListener('click', async () => {
       const btn = $('loginBtn');
       const msg = $('loginMsg');
@@ -148,6 +152,41 @@
           $('authBox').style.borderColor = '#4caf50';
         } else {
           show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'بيانات الدخول غير صحيحة'));
+        }
+      } catch (e) {
+        show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // زر إنشاء حساب جديد
+    $('registerBtn').addEventListener('click', async () => {
+      const btn = $('registerBtn');
+      const msg = $('loginMsg');
+      const input = $('adminUser').value.trim();
+      const pass = $('adminPass').value;
+      
+      if (!input || !pass) {
+        return show(msg, 'orange', 'يرجى كتابة البريد وكلمة المرور لإنشاء الحساب');
+      }
+
+      show(msg, '#e0a96d', 'جاري إنشاء الحساب...');
+      btn.disabled = true;
+
+      const username = input.split('@')[0] || 'admin';
+
+      try {
+        const { res, json } = await postData('/api/auth/register', {
+          username: username,
+          email: input,
+          password: pass
+        });
+        if (res.ok) {
+          show(msg, '#4caf50', '✅ تم إنشاء الحساب بنجاح! أنت الآن مسجل دخولك كمدير.');
+          $('authBox').style.borderColor = '#4caf50';
+        } else {
+          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'المستخدم موجود مسبقاً، استخدم زر تسجيل الدخول.'));
         }
       } catch (e) {
         show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
