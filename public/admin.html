@@ -1,1 +1,157 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>إدارة نوبي</title><style>body{margin:0;background:#090b10;color:#f8f4eb;font-family:Arial,sans-serif}.wrap{max-width:1000px;margin:35px auto;padding:0 18px}.panel{background:#141b27;border:1px solid #2a374a;border-radius:18px;padding:22px;margin:16px 0}h1,h2{color:#e0ad4f}input,textarea,select,button{font:inherit;border-radius:9px;padding:11px;margin:5px 0}input,textarea,select{width:100%;box-sizing:border-box;background:#0a0e15;color:#fff;border:1px solid #2a374a}button{border:1px solid #e0ad4f;background:#e0ad4f;color:#171208;font-weight:bold;cursor:pointer}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.muted{color:#9ca9bb}.hidden{display:none}.stat{font-size:30px;color:#e0ad4f;font-weight:bold}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}</style></head><body><main class="wrap"><h1>نوبي — لوحة الإدارة</h1><p class="muted">هذه الصفحة خاصة بالمشغل، ولا تظهر صلاحياتها للزوار.</p><section id="login" class="panel"><h2>دخول المشغل</h2><input id="email" placeholder="البريد الإداري"><input id="pass" type="password" placeholder="كلمة المرور"><button onclick="login()">دخول آمن</button><p id="msg"></p></section><section id="dash" class="hidden"><div class="panel"><div class="row"><div><h2>الإحصائيات</h2><div class="stat" id="users">—</div><div class="muted">مستخدمون</div></div><div><div class="stat" id="manga">—</div><div class="muted">أعمال</div></div><div><div class="stat" id="views">—</div><div class="muted">مشاهدات الإعلانات</div></div><div><div class="stat" id="clicks">—</div><div class="muted">نقرات الإعلانات</div></div></div></div><div class="panel"><h2>إضافة عمل</h2><div class="grid"><input id="ta" placeholder="العنوان العربي"><input id="te" placeholder="العنوان الإنجليزي"><input id="cat" placeholder="التصنيف"><input id="cover" placeholder="رابط الغلاف أو مساره"><input id="rating" type="number" step="0.1" placeholder="التقييم"><textarea id="desc" placeholder="الوصف"></textarea></div><button onclick="addManga()">حفظ العمل</button></div><div class="panel"><h2>إضافة فصل</h2><input id="mid" type="number" placeholder="رقم العمل"><input id="num" type="number" placeholder="رقم الفصل"><input id="ct" placeholder="عنوان الفصل"><textarea id="pages" placeholder="روابط صفحات الفصل، رابط في كل سطر"></textarea><textarea id="translated" placeholder="النص العربي المعتمد، اختياري"></textarea><button onclick="addChapter()">حفظ الفصل</button></div><div class="panel"><h2>إعداد إعلان</h2><select id="slot"><option value="home-top">الرئيسية</option><option value="library-inline">بين الأعمال</option><option value="reader-bottom">أسفل القارئ</option></select><input id="adtitle" placeholder="عنوان الإعلان"><input id="adbody" placeholder="نص الإعلان"><input id="adhref" placeholder="رابط الإعلان"><select id="mode"><option value="house">إعلان داخلي</option><option value="adsense">AdSense</option></select><input id="client" placeholder="AdSense client ID (اختياري)"><input id="adslot" placeholder="AdSense slot ID (اختياري)"><button onclick="saveAd()">حفظ الإعلان</button></div></section></main><script>const $=x=>document.querySelector(x);async function api(u,o={}){const r=await fetch(u,{credentials:'same-origin',headers:{'Content-Type':'application/json',...(o.headers||{})},...o});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'تعذر الطلب');return d}function msg(x){$('#msg').textContent=x}async function login(){try{await api('/api/admin/login',{method:'POST',body:JSON.stringify({email:$('#email').value,password:$('#pass').value})});$('#login').classList.add('hidden');$('#dash').classList.remove('hidden');load()}catch(e){msg(e.message)}}async function load(){try{const d=await api('/api/admin/summary');$('#users').textContent=d.users;$('#manga').textContent=d.manga;$('#views').textContent=d.adViews;$('#clicks').textContent=d.adClicks}catch(e){msg(e.message)}}async function addManga(){try{const d=await api('/api/admin/manga',{method:'POST',body:JSON.stringify({titleAr:$('#ta').value,titleEn:$('#te').value,category:$('#cat').value,coverUrl:$('#cover').value,rating:$('#rating').value,description:$('#desc').value})});$('#mid').value=d.id;msg('تم حفظ العمل برقم '+d.id)}catch(e){msg(e.message)}}async function addChapter(){try{await api('/api/admin/manga/'+$('#mid').value+'/chapters',{method:'POST',body:JSON.stringify({number:$('#num').value,title:$('#ct').value,pages:$('#pages').value.split(/\n|,/).map(x=>x.trim()).filter(Boolean),translatedText:$('#translated').value})});msg('تم حفظ الفصل')}catch(e){msg(e.message)}}async function saveAd(){try{await api('/api/admin/ads/'+$('#slot').value,{method:'PUT',body:JSON.stringify({mode:$('#mode').value,title:$('#adtitle').value,body:$('#adbody').value,href:$('#adhref').value,clientId:$('#client').value,adSlot:$('#adslot').value})});msg('تم حفظ إعداد الإعلان')}catch(e){msg(e.message)}}</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>لوحة التحكم</title>
+  <style>
+    :root{--bg:#0f1115;--card:#161922;--line:#282c39;--field:#0d0f14;--field-line:#333846;--text:#e8eaed;--gold:#e0a96d;--gold-hover:#c69259;--ok:#4caf50;--err:#f44336;--warn:orange}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center}
+    .wrap{width:100%;max-width:540px}
+    .card{background:var(--card);padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid var(--line)}
+    .card.accent{border-color:var(--gold)}
+    h2,h3{margin-top:0;color:var(--gold)}
+    label{display:block;font-size:13px;margin-bottom:6px;color:#b8bcc6}
+    input,button{width:100%;padding:12px;margin-bottom:12px;border-radius:8px;border:1px solid var(--field-line);background:var(--field);color:#fff;font-size:14px;font-family:inherit}
+    input:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    input[aria-invalid="true"]{border-color:var(--err)}
+    button{background:var(--gold);color:#111;font-weight:bold;cursor:pointer;border:none}
+    button:hover:not(:disabled){background:var(--gold-hover)}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .msg{font-size:13px;margin-top:6px;min-height:1.2em;line-height:1.6;word-break:break-word}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>لوحة التحكم</h2>
+
+    <!-- سحب مانجا كاملة من MangaDex -->
+    <div class="card accent">
+      <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
+      <label for="fullMangaUrl">رابط المانجا</label>
+      <input type="url" id="fullMangaUrl" placeholder="https://mangadex.org/title/..." autocomplete="off" dir="ltr">
+      <button type="button" id="importBtn">جلب البيانات والغلاف تلقائياً</button>
+      <div id="importMsg" class="msg" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- إضافة عمل يدوياً -->
+    <div class="card">
+      <h3>إضافة عمل يدوياً</h3>
+      <label for="mTitleAr">عنوان العمل (عربي) *</label>
+      <input type="text" id="mTitleAr" autocomplete="off">
+      <label for="mTitleEn">العنوان (إنجليزي)</label>
+      <input type="text" id="mTitleEn" dir="ltr" autocomplete="off">
+      <label for="mCover">رابط صورة الغلاف المباشر (https)</label>
+      <input type="url" id="mCover" dir="ltr" autocomplete="off">
+      <label for="mRating">التقييم (من 0 إلى 10)</label>
+      <input type="number" id="mRating" min="0" max="10" step="0.1" placeholder="9.5">
+      <button type="button" id="saveBtn">حفظ العمل</button>
+      <div id="manualMsg" class="msg" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+    const REQUEST_TIMEOUT_MS = 25000;
+    const MANGADEX_RE = /title\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+    const COLORS = { ok: '#4caf50', err: '#f44336', warn: 'orange', info: '#e0a96d' };
+    const busy = new Set();
+
+    const $ = (id) => document.getElementById(id);
+
+    function show(el, type, text) {
+      el.style.color = COLORS[type] || COLORS.info;
+      el.textContent = text;
+    }
+
+    async function guarded(key, btn, fn) {
+      if (busy.has(key)) return;
+      busy.add(key);
+      btn.disabled = true;
+      try { await fn(); }
+      finally { busy.delete(key); btn.disabled = false; }
+    }
+
+    async function api(path, payload) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: ctrl.signal
+        });
+        const data = await res.json().catch(() => null);
+        return { res, data };
+      } catch (err) {
+        if (err && err.name === 'AbortError') return { ok: false, error: 'انتهت المهلة، الخادم يستغرق وقتاً طويلاً.' };
+        return { ok: false, error: 'تعذر الاتصال بالسيرفر.' };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function importEntireManga() {
+      const urlInput = $('fullMangaUrl');
+      const msg = $('importMsg');
+      const raw = urlInput.value.trim();
+
+      const match = raw.match(MANGADEX_RE);
+      if (!match) {
+        urlInput.setAttribute('aria-invalid', 'true');
+        show(msg, 'warn', 'صيغة الرابط غير صحيحة! يجب أن يحتوي على معرف المانجا.');
+        return;
+      }
+      urlInput.setAttribute('aria-invalid', 'false');
+
+      show(msg, 'info', '⏳ جاري سحب البيانات والغلاف من MangaDex...');
+      const out = await api('/api/admin/auto-import-manga', { mangaUrl: raw });
+
+      if (out.res && out.res.ok && out.data && out.data.ok) {
+        const title = out.data.data.title || '';
+        const id = out.data.data.mangaId || '';
+        show(msg, 'ok', `✅ تم سحب العمل بنجاح! الاسم: [${title}] (المعرف: ${id})`);
+        urlInput.value = '';
+      } else {
+        const err = out.error || (out.data && out.data.error) || 'فشلت عملية السحب';
+        show(msg, 'err', '❌ خطأ: ' + err);
+      }
+    }
+
+    async function addMangaManual() {
+      const msg = $('manualMsg');
+      const titleAr = $('mTitleAr').value.trim();
+      const titleEn = $('mTitleEn').value.trim();
+      const coverUrl = $('mCover').value.trim();
+      const ratingRaw = $('mRating').value.trim();
+
+      if (!titleAr) {
+        show(msg, 'warn', 'العنوان العربي مطلوب!');
+        return;
+      }
+
+      show(msg, 'info', '⏳ جاري حفظ العمل...');
+      const out = await api('/api/admin/manga', {
+        title_ar: titleAr,
+        title_en: titleEn,
+        cover_url: coverUrl,
+        rating: Number(ratingRaw) || 9
+      });
+
+      if (out.res && out.res.ok) {
+        show(msg, 'ok', '✅ تم حفظ العمل بنجاح!');
+        ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = '');
+      } else {
+        const err = out.error || (out.data && out.data.error) || 'فشل الحفظ';
+        show(msg, 'err', '❌ خطأ: ' + err);
+      }
+    }
+
+    $('importBtn').addEventListener('click', (e) => guarded('import', e.currentTarget, importEntireManga));$('saveBtn').addEventListener('click', (e) => guarded('save', e.currentTarget, addMangaManual));
+  </script>
+</body>
+  </html>
+  
