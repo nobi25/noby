@@ -3,64 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم - Noby</title>
+  <title>Noby Admin | لوحة التحكم</title>
   <style>
-    :root { --bg: #0f1115; --card: #161922; --border: #282c39; --field: #0d0f14; --text: #e8eaed; --gold: #e0a96d; --gold-hover: #c69259; --ok: #4caf50; --err: #f44336;}
+    :root { --bg: #090a0f; --card: #131620; --border: #222738; --field: #0b0d14; --text: #f0f2f5; --gold: #e5b573; --gold-hover: #cca062; --danger: #ef4444; --ok: #22c55e;}
     * { box-sizing: border-box; }
     html, body { background: var(--bg); color: var(--text); margin: 0; padding: 0; font-family: system-ui, sans-serif; min-height: 100vh; overflow-y: auto; }
-    .wrap { width: 100%; max-width: 520px; margin: 0 auto; padding: 24px 16px 80px 16px; }
-    h2 { color: var(--gold); margin-top: 0; font-size: 22px; text-align: center; margin-bottom: 24px;}
-    h3 { margin-top: 0; color: var(--gold); font-size: 16px; margin-bottom: 12px; }
-    .card { background: var(--card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .card.gold-border { border-color: var(--gold); }
-    label { display: block; font-size: 13px; margin-bottom: 6px; color: #a0a5b5; font-weight: bold;}
+    .wrap { width: 100%; max-width: 650px; margin: 0 auto; padding: 20px 16px 80px 16px; }
+    .logo-title { text-align: center; font-size: 32px; font-weight: 900; color: var(--gold); letter-spacing: 2px; margin-bottom: 24px; text-shadow: 0 0 15px rgba(229,181,115,0.3); }
+    h3 { margin-top: 0; color: var(--gold); font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .card { background: var(--card); padding: 20px; border-radius: 14px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #94a3b8; font-weight: bold;}
     input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: #fff; font-size: 14px; display: block; }
     input:focus { outline: 2px solid var(--gold); border-color: transparent;}
-    button { width: 100%; padding: 14px; background: var(--gold); color: #111; font-weight: bold; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 10px; transition: background 0.2s;}
+    button { width: 100%; padding: 13px; background: var(--gold); color: #111; font-weight: bold; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 10px; transition: 0.2s;}
     button:hover { background: var(--gold-hover); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-blue { background: #2196f3; color: white; }
-    .btn-blue:hover { background: #1976d2; }
-    .msg { font-size: 14px; margin-top: 10px; line-height: 1.5; word-break: break-word; font-weight: bold; text-align: center;}
-    .step-log { font-size: 12px; color: #a0a5b5; margin-top: 8px; background: #0d0f14; padding: 8px; border-radius: 4px; display: none; text-align: left; direction: ltr;}
+    .btn-blue { background: #3b82f6; color: white; }
+    .btn-blue:hover { background: #2563eb; }
+    .btn-danger { background: var(--danger); color: white; width: auto; padding: 6px 12px; font-size: 12px; margin: 0; }
+    .msg { font-size: 13px; margin-top: 10px; line-height: 1.5; text-align: center; font-weight: bold;}
+    .manga-row { display: flex; justify-content: space-between; align-items: center; background: var(--field); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); }
+    .manga-info { font-size: 14px; font-weight: bold; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h2>👑 لوحة تحكم Noby</h2>
+    <div class="logo-title">N O B Y</div>
 
     <div class="card" id="authBox">
       <h3>🔐 تسجيل دخول الإدارة</h3>
-      <label>اسم المستخدم أو البريد الإلكتروني</label>
-      <input type="text" id="adminUser" placeholder="مثال: cfgf6463@gmail.com">
+      <label>البريد أو اسم المستخدم</label>
+      <input type="text" id="adminUser" placeholder="admin@noby.com">
       <label>كلمة المرور</label>
       <input type="password" id="adminPass" placeholder="••••••••">
-      <button type="button" id="loginBtn">تسجيل الدخول</button>
-      <button type="button" id="registerBtn" class="btn-blue">إنشاء الحساب (لأول مرة فقط)</button>
+      <button type="button" id="loginBtn">دخول</button>
+      <button type="button" id="registerBtn" class="btn-blue">إنشاء حساب المدير</button>
       <div id="loginMsg" class="msg"></div>
     </div>
 
-    <div class="card gold-border">
-      <h3>🚀 سحب مانجا شامل (عبر Proxy)</h3>
-      <label>رابط العمل من MangaDex</label>
+    <div class="card">
+      <h3>🚀 سحب مانجا شامل من MangaDex</h3>
+      <label>رابط العمل</label>
       <input type="text" id="fullMangaUrl" placeholder="https://mangadex.org/title/..." dir="ltr">
-      <button type="button" id="importBtn">🔥 سحب المانجا والفصول الان 🔥</button>
+      <button type="button" id="importBtn">بدء السحب الذكي</button>
       <div id="importMsg" class="msg"></div>
-      <div id="importLog" class="step-log"></div>
     </div>
 
     <div class="card">
-      <h3>إضافة عمل يدوياً</h3>
-      <label>عنوان العمل (عربي) *</label>
-      <input type="text" id="mTitleAr">
-      <label>العنوان (إنجليزي)</label>
-      <input type="text" id="mTitleEn" dir="ltr">
-      <label>رابط صورة الغلاف</label>
-      <input type="url" id="mCover" dir="ltr">
-      <label>التقييم</label>
-      <input type="number" id="mRating" min="0" max="10" step="0.1" placeholder="9.5">
-      <button type="button" id="saveBtn">حفظ العمل</button>
-      <div id="manualMsg" class="msg"></div>
+      <h3>📚 إدارة المكتبة (حذف وتعديل الأعمال)</h3>
+      <div id="mangaListContainer">جاري تحميل المكتبة...</div>
     </div>
   </div>
 
@@ -68,94 +58,42 @@
     'use strict';
     const $ = (id) => document.getElementById(id);
     function show(el, color, text) { el.style.color = color; el.textContent = text; }
-    
-    function logStep(text) {
-        const logEl = $('importLog');
-        logEl.style.display = 'block';
-        logEl.innerHTML += `<div>> ${text}</div>`;
-        logEl.scrollTop = logEl.scrollHeight;
-    }
 
-    async function postData(url, data) {
-      const res = await fetch(url, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    async function postData(url, data = {}, method = 'POST') {
+      const res = await fetch(url, { method, credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: method !== 'GET' ? JSON.stringify(data) : undefined });
       const json = await res.json().catch(() => ({}));
       return { res, json };
     }
 
-    // دالة التوقف المؤقت لخداع نظام الحماية
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-    // دالة الوسيط المتعددة والمحصنة
-    async function fetchWithProxy(targetUrl) {
-      const encoded = encodeURIComponent(targetUrl);
-      const proxies = [
-        `https://api.allorigins.win/get?url=${encoded}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encoded}`,
-        `https://corsproxy.io/?${encoded}`
-      ];
-
-      for (let proxy of proxies) {
-        try {
-          let res = await fetch(proxy);
-          if (res.ok) {
-            let textData = await res.text();
-            try {
-              let jsonData = JSON.parse(textData);
-              // استخراج البيانات المخفية في allorigins
-              if (jsonData.contents) {
-                  return JSON.parse(jsonData.contents);
-              }
-              return jsonData;
-            } catch(e) { return JSON.parse(textData); }
-          }
-        } catch(e) {
-          // في حال فشل الوسيط الأول، ينتقل بصمت للثاني
-        }
-      }
-      throw new Error('فشل جلب البيانات');
-    }
-
     $('loginBtn').addEventListener('click', async () => {
-      const btn = $('loginBtn'); const msg =$('loginMsg');
-      show(msg, '#e0a96d', 'جاري التحقق...'); btn.disabled = true;
-      try {
-        const { res, json } = await postData('/api/auth/login', { username: $('adminUser').value.trim(), password:$('adminPass').value });
-        if (res.ok) { show(msg, '#4caf50', '✅ تم تسجيل الدخول بنجاح!'); $('authBox').style.borderColor = '#4caf50'; } 
-        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'بيانات غير صحيحة')); }
-      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
+      const msg = $('loginMsg'); show(msg, '#e5b573', 'جاري التحقق...');
+      const { res, json } = await postData('/api/auth/login', { username: $('adminUser').value.trim(), password:$('adminPass').value });
+      if (res.ok) { show(msg, 'var(--ok)', '✅ تم تسجيل الدخول'); loadLibrary(); } 
+      else { show(msg, 'var(--danger)', '❌ ' + (json.error || 'فشل الدخول')); }
     });
 
     $('registerBtn').addEventListener('click', async () => {
-      const btn = $('registerBtn'); const msg =$('loginMsg');
-      show(msg, '#e0a96d', 'جاري إنشاء الحساب...'); btn.disabled = true;
-      try {
-        const { res, json } = await postData('/api/auth/register', { username: $('adminUser').value.trim(), email: $('adminUser').value.trim(), password:$('adminPass').value });
-        if (res.ok) { show(msg, '#4caf50', '✅ تم إنشاء الحساب بنجاح! أنت الآن مدير.'); $('authBox').style.borderColor = '#4caf50'; } 
-        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل')); }
-      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
+      const msg = $('loginMsg'); show(msg, '#e5b573', 'جاري الإنشاء...');
+      const { res, json } = await postData('/api/auth/register', { username: $('adminUser').value.trim(), email: $('adminUser').value.trim(), password:$('adminPass').value });
+      if (res.ok) { show(msg, 'var(--ok)', '✅ تم إنشاء الحساب ودخولك بنجاح'); loadLibrary(); } 
+      else { show(msg, 'var(--danger)', '❌ ' + (json.error || 'فشل')); }
     });
 
+    // السحب الذكي مع عزل الأخطاء
     $('importBtn').addEventListener('click', async () => {
-      const btn = $('importBtn'); 
-      const msg = $('importMsg');
-      const logEl = $('importLog');
-      
-      const rawUrl = $('fullMangaUrl').value.trim();
-      const cleanUrl = rawUrl.replace(/[\[\]]/g, '');
-      const match = cleanUrl.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-      
-      if (!match) return show(msg, 'orange', '⚠️ الرابط لا يحتوي على معرف مانجا صالح!');
+      const msg = $('importMsg'); const raw =$('fullMangaUrl').value.trim().replace(/[\[\]]/g, '');
+      const match = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      if (!match) return show(msg, 'orange', '⚠️ رابط MangaDex غير صالح');
       const mangaId = match[0];
 
-      logEl.innerHTML = '';
-      show(msg, '#e0a96d', '⏳ جاري السحب بهدوء تام لتجنب الحظر...');
-      logStep('Starting stealth proxy connection...');
-      btn.disabled = true;
+      show(msg, '#e5b573', '⏳ جاري جلب التفاصيل والغلاف والفصول...');
+      const proxy = 'https://corsproxy.io/?';
 
       try {
-        // 1. سحب الاسم
-        logStep('Fetching manga details...');
-        let data = await fetchWithProxy(`https://api.mangadex.org/manga/${mangaId}`);
+        let res = await fetch(proxy + encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}`));
+        if (!res.ok) throw new Error('فشل الاتصال بـ MangaDex');
+        let data = await res.json();
+        
         const attr = data.data.attributes;
         const titleEn = attr.title.en || Object.values(attr.title)[0] || 'بدون عنوان';
         let titleAr = titleEn;
@@ -163,72 +101,70 @@
           const arTitle = attr.altTitles.find(t => t.ar);
           if (arTitle) titleAr = arTitle.ar;
         }
-        logStep(`Title: ${titleAr}`);
 
-        // انتظار لمدة ثانية واحدة لخداع الحماية
-        await sleep(1000);
-
-        // 2. سحب الغلاف
         let coverUrl = '';
         const coverRel = data.data.relationships.find(r => r.type === 'cover_art');
         if (coverRel) {
           try {
-            logStep('Fetching cover URL...');
-            let cData = await fetchWithProxy(`https://api.mangadex.org/cover/${coverRel.id}`);
-            coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
-            logStep('Cover found!');
-          } catch(e){ logStep('Cover skip: ' + e.message); } 
+            let cRes = await fetch(proxy + encodeURIComponent(`https://api.mangadex.org/cover/${coverRel.id}`));
+            if (cRes.ok) {
+              let cData = await cRes.json();
+              coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
+            }
+          } catch(e){}
         }
 
-        // انتظار لمدة ثانية أخرى
-        await sleep(1000);
-
-        show(msg, '#e0a96d', '⏳ جاري تجميع الفصول...');
-        
-        // 3. سحب الفصول
         let chapters = [];
         try {
-          logStep('Fetching chapters...');
-          let chData = await fetchWithProxy(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
-          const list = chData.data || [];
-          for (const ch of list) {
-            chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
+          let chRes = await fetch(proxy + encodeURIComponent(`https://api.mangadex.org/manga/${mangaId}/feed?limit=250&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`));
+          if (chRes.ok) {
+            let chData = await chRes.json();
+            for (const ch of (chData.data || [])) {
+              chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
+            }
           }
-          logStep(`Found ${chapters.length} chapters.`);
-        } catch(e){ logStep('Chapters skip: ' + e.message); } 
+        } catch(e){}
 
-        show(msg, '#e0a96d', '⏳ جاري الحفظ في قاعدة بيانات موقعك...');
-        logStep('Saving to your server...');
-        
-        // 4. تسليمها للسيرفر الخاص بك
         const saveRes = await postData('/api/admin/save-scraped-manga', { mangaId, title_ar: titleAr, title_en: titleEn, cover_url: coverUrl, chapters });
-
         if (saveRes.res.ok && saveRes.json.ok) {
-          show(msg, '#4caf50', `✅ تمت العملية بنجاح! تم سحب "${titleAr}" وحفظ (${saveRes.json.chaptersSaved}) فصل!`);
+          show(msg, 'var(--ok)', `✅ تم سحب "${titleAr}" وحفظ (${saveRes.json.chaptersSaved}) فصل بنجاح!`);
           $('fullMangaUrl').value = '';
-          logStep('DONE SUCCESS!');
+          loadLibrary();
         } else {
-          show(msg, '#f44336', '❌ فشل في حفظ البيانات: ' + (saveRes.json.error || ''));
+          show(msg, 'var(--danger)', '❌ فشل الحفظ في القاعدة');
         }
       } catch (e) {
-        show(msg, '#f44336', '❌ فشل السحب: ' + e.message);
-        logStep('ERROR: ' + e.message);
-      } finally {
-        btn.disabled = false;
+        show(msg, 'var(--danger)', '❌ خطأ في السحب: ' + e.message);
       }
     });
 
-    $('saveBtn').addEventListener('click', async () => {
-      const btn = $('saveBtn'); const msg =$('manualMsg');
-      const titleAr = $('mTitleAr').value.trim();
-      if (!titleAr) return show(msg, 'orange', 'العنوان العربي مطلوب!');
-      btn.disabled = true;
+    // جذف مانجا
+    window.deleteManga = async function(id) {
+      if (!confirm('هل أنت متأكد من حذف هذه المانجا وفصولها بالكامل؟')) return;
+      const { res } = await postData(`/api/admin/manga/${id}`, {}, 'DELETE');
+      if (res.ok) loadLibrary();
+      else alert('فشل الحذف');
+    }
+
+    async function loadLibrary() {
+      const container = $('mangaListContainer');
       try {
-        const { res, json } = await postData('/api/admin/manga', { title_ar: titleAr, title_en: $('mTitleEn').value.trim(), cover_url: $('mCover').value.trim(), rating: Number($('mRating').value.trim()) || 9 });
-        if (res.ok) { show(msg, '#4caf50', '✅ تم الحفظ!'); ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = ''); } 
-        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل')); }
-      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال'); } finally { btn.disabled = false; }
-    });
+        const res = await fetch('/api/admin/manga', { credentials: 'include' });
+        if (!res.ok) { container.innerHTML = '<span style="color:#94a3b8">يرجى تسجيل الدخول أولاً لعرض المكتبة</span>'; return; }
+        const list = await res.json();
+        if (list.length === 0) { container.innerHTML = '<span style="color:#94a3b8">لا توجد أعمال في المكتبة حالياً</span>'; return; }
+        
+        container.innerHTML = list.map(m => `
+          <div class="manga-row">
+            <div class="manga-info" title="${m.title_ar}">${m.title_ar}</div>
+            <button class="btn-danger" onclick="deleteManga(${m.id})">حذف</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = 'خطأ في تحميل المكتبة';
+      }
+    }
+    loadLibrary();
   </script>
 </body>
 </html>
