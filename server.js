@@ -158,7 +158,9 @@ app.post('/api/admin/auto-import-manga', admin, async (req, res) => {
 
 // ملفات الواجهة العامة
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('*', (req, res) => {
+
+// مسار توجيه الصفحات 
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
