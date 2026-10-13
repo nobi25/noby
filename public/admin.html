@@ -5,68 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة التحكم</title>
   <style>
-    :root {
-      --bg: #0f1115;
-      --card: #161922;
-      --border: #282c39;
-      --field: #0d0f14;
-      --text: #e8eaed;
-      --gold: #e0a96d;
-      --gold-hover: #c69259;
-      --ok: #4caf50;
-      --err: #f44336;
-    }
+    :root { --bg: #0f1115; --card: #161922; --border: #282c39; --field: #0d0f14; --text: #e8eaed; --gold: #e0a96d; --gold-hover: #c69259; }
     * { box-sizing: border-box; }
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      overflow-y: auto;
-    }
-    .wrap {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 24px 16px 80px 16px;
-    }
+    html, body { background: var(--bg); color: var(--text); margin: 0; padding: 0; font-family: system-ui, sans-serif; min-height: 100vh; overflow-y: auto; }
+    .wrap { width: 100%; max-width: 520px; margin: 0 auto; padding: 24px 16px 80px 16px; }
     h2 { color: var(--gold); margin-top: 0; font-size: 22px; }
     h3 { margin-top: 0; color: var(--gold); font-size: 16px; margin-bottom: 12px; }
-    .card {
-      background: var(--card);
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-    }
+    .card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
     .card.gold-border { border-color: var(--gold); }
     label { display: block; font-size: 13px; margin-bottom: 6px; color: #a0a5b5; }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--field);
-      color: #fff;
-      font-size: 14px;
-      display: block;
-    }
+    input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--field); color: #fff; font-size: 14px; display: block; }
     input:focus { outline: 2px solid var(--gold); }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: var(--gold);
-      color: #111;
-      font-weight: bold;
-      border-radius: 8px;
-      border: none;
-      font-size: 15px;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
+    button { width: 100%; padding: 12px; background: var(--gold); color: #111; font-weight: bold; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
     button:hover { background: var(--gold-hover); }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
     .btn-blue { background: #2196f3; color: white; }
@@ -78,7 +28,6 @@
   <div class="wrap">
     <h2>لوحة تحكم الموقع</h2>
 
-    <!-- صندوق تسجيل الدخول -->
     <div class="card" id="authBox">
       <h3>🔐 تسجيل دخول الإدارة</h3>
       <label>اسم المستخدم أو البريد الإلكتروني</label>
@@ -90,7 +39,6 @@
       <div id="loginMsg" class="msg"></div>
     </div>
 
-    <!-- صندوق السحب الآلي -->
     <div class="card gold-border">
       <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
       <label>رابط العمل من MangaDex أو المعرف</label>
@@ -99,7 +47,6 @@
       <div id="importMsg" class="msg"></div>
     </div>
 
-    <!-- الإضافة اليدوية -->
     <div class="card">
       <h3>إضافة عمل يدوياً</h3>
       <label>عنوان العمل (عربي) *</label>
@@ -118,150 +65,115 @@
   <script>
     'use strict';
     const $ = (id) => document.getElementById(id);
-
-    function show(el, color, text) {
-      el.style.color = color;
-      el.textContent = text;
-    }
+    function show(el, color, text) { el.style.color = color; el.textContent = text; }
 
     async function postData(url, data) {
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(url, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
       const json = await res.json().catch(() => ({}));
       return { res, json };
     }
 
-    // زر تسجيل الدخول
     $('loginBtn').addEventListener('click', async () => {
-      const btn = $('loginBtn');
-      const msg = $('loginMsg');
-      show(msg, '#e0a96d', 'جاري التحقق...');
-      btn.disabled = true;
-
+      const btn = $('loginBtn'); const msg =$('loginMsg');
+      show(msg, '#e0a96d', 'جاري التحقق...'); btn.disabled = true;
       try {
-        const { res, json } = await postData('/api/auth/login', {
-          username: $('adminUser').value.trim(),
-          password: $('adminPass').value
-        });
-        if (res.ok) {
-          show(msg, '#4caf50', '✅ تم تسجيل الدخول بنجاح! يمكنك الآن سحب الأعمال.');
-          $('authBox').style.borderColor = '#4caf50';
-        } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'بيانات الدخول غير صحيحة'));
-        }
-      } catch (e) {
-        show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
-      } finally {
-        btn.disabled = false;
-      }
+        const { res, json } = await postData('/api/auth/login', { username: $('adminUser').value.trim(), password:$('adminPass').value });
+        if (res.ok) { show(msg, '#4caf50', '✅ تم تسجيل الدخول بنجاح!'); $('authBox').style.borderColor = '#4caf50'; } 
+        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'بيانات غير صحيحة')); }
+      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
     });
 
-    // زر إنشاء حساب جديد
     $('registerBtn').addEventListener('click', async () => {
-      const btn = $('registerBtn');
-      const msg = $('loginMsg');
-      const input = $('adminUser').value.trim();
-      const pass = $('adminPass').value;
-      
-      if (!input || !pass) {
-        return show(msg, 'orange', 'يرجى كتابة البريد وكلمة المرور لإنشاء الحساب');
-      }
-
-      show(msg, '#e0a96d', 'جاري إنشاء الحساب...');
-      btn.disabled = true;
-
-      const username = input.split('@')[0] || 'admin';
-
+      const btn = $('registerBtn'); const msg =$('loginMsg');
+      show(msg, '#e0a96d', 'جاري إنشاء الحساب...'); btn.disabled = true;
       try {
-        const { res, json } = await postData('/api/auth/register', {
-          username: username,
-          email: input,
-          password: pass
-        });
-        if (res.ok) {
-          show(msg, '#4caf50', '✅ تم إنشاء الحساب بنجاح! أنت الآن مسجل دخولك كمدير.');
-          $('authBox').style.borderColor = '#4caf50';
-        } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'المستخدم موجود مسبقاً، استخدم زر تسجيل الدخول.'));
-        }
-      } catch (e) {
-        show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
-      } finally {
-        btn.disabled = false;
-      }
+        const { res, json } = await postData('/api/auth/register', { username: $('adminUser').value.trim(), email: $('adminUser').value.trim(), password:$('adminPass').value });
+        if (res.ok) { show(msg, '#4caf50', '✅ تم إنشاء الحساب بنجاح! أنت الآن مدير.'); $('authBox').style.borderColor = '#4caf50'; } 
+        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل')); }
+      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر'); } finally { btn.disabled = false; }
     });
 
-    // السحب الآلي
+    // السحب الذكي من المتصفح لتجاوز حظر السيرفرات
     $('importBtn').addEventListener('click', async () => {
-      const btn = $('importBtn');
-      const msg = $('importMsg');
+      const btn = $('importBtn'); const msg =$('importMsg');
       const raw = $('fullMangaUrl').value.trim();
-
       const match = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-      if (!match) {
-        show(msg, 'orange', '⚠️ الرابط لا يحتوي على معرف مانجا صالح!');
-        return;
-      }
+      
+      if (!match) return show(msg, 'orange', '⚠️ الرابط لا يحتوي على معرف مانجا صالح!');
+      const mangaId = match[0];
 
-      show(msg, '#e0a96d', '⏳ جاري جلب التفاصيل والغلاف من MangaDex...');
+      show(msg, '#e0a96d', '⏳ متصفحك يقوم الآن بسحب البيانات لتخطي الحظر...');
       btn.disabled = true;
 
       try {
-        const { res, json } = await postData('/api/admin/auto-import-manga', { mangaUrl: match[0] });
-
-        if (res.status === 401 || res.status === 403) {
-          show(msg, '#f44336', '❌ يجب تسجيل الدخول من الصندوق العلوي أولاً!');
-          return;
+        // 1. سحب الاسم
+        let res = await fetch('https://api.mangadex.org/manga/' + mangaId);
+        if (!res.ok) throw new Error('MangaDex يرفض الطلب');
+        let data = await res.json();
+        
+        const attr = data.data.attributes;
+        const titleEn = attr.title.en || Object.values(attr.title)[0] || 'بدون عنوان';
+        let titleAr = titleEn;
+        if (attr.altTitles) {
+          const arTitle = attr.altTitles.find(t => t.ar);
+          if (arTitle) titleAr = arTitle.ar;
         }
 
-        if (res.ok && json.ok) {
-          const d = json.data || {};
-          show(msg, '#4caf50', `✅ تم سحب العمل بنجاح! العنوان: [${d.title}] (معرف: ${d.mangaId})`);
+        // 2. سحب الغلاف
+        let coverUrl = '';
+        const coverRel = data.data.relationships.find(r => r.type === 'cover_art');
+        if (coverRel) {
+          try {
+            let cRes = await fetch('https://api.mangadex.org/cover/' + coverRel.id);
+            if (cRes.ok) {
+              let cData = await cRes.json();
+              coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${cData.data.attributes.fileName}`;
+            }
+          } catch(e){} 
+        }
+
+        show(msg, '#e0a96d', '⏳ جاري استخراج الفصول...');
+        // 3. سحب الفصول (إلى 300 فصل)
+        let chapters = [];
+        try {
+          let chRes = await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?limit=300&translatedLanguage[]=en&translatedLanguage[]=ar&order[chapter]=asc`);
+          if (chRes.ok) {
+            let chData = await chRes.json();
+            const list = chData.data || [];
+            for (const ch of list) {
+              chapters.push({ num: Number(ch.attributes.chapter) || 0, title: ch.attributes.title || `الفصل ${ch.attributes.chapter || 0}` });
+            }
+          }
+        } catch(e){} 
+
+        show(msg, '#e0a96d', '⏳ جاري إرسالها وحفظها في قاعدة بيانات موقعك...');
+        
+        // 4. تسليمها للسيرفر الخاص بك
+        const saveRes = await postData('/api/admin/save-scraped-manga', { mangaId, title_ar: titleAr, title_en: titleEn, cover_url: coverUrl, chapters });
+
+        if (saveRes.res.ok && saveRes.json.ok) {
+          show(msg, '#4caf50', `✅ اكتمل السحر! تم سحب "${titleAr}" وحفظ (${saveRes.json.chaptersSaved}) فصل بنجاح!`);
           $('fullMangaUrl').value = '';
         } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل السحب'));
+          show(msg, '#f44336', '❌ فشل في حفظ البيانات: ' + (saveRes.json.error || ''));
         }
       } catch (e) {
-        show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
+        show(msg, '#f44336', '❌ فشل السحب: ' + e.message);
       } finally {
         btn.disabled = false;
       }
     });
 
-    // الحفظ اليدوي
     $('saveBtn').addEventListener('click', async () => {
-      const btn = $('saveBtn');
-      const msg = $('manualMsg');
+      const btn = $('saveBtn'); const msg =$('manualMsg');
       const titleAr = $('mTitleAr').value.trim();
-
-      if (!titleAr) {
-        show(msg, 'orange', 'العنوان العربي مطلوب!');
-        return;
-      }
-
+      if (!titleAr) return show(msg, 'orange', 'العنوان العربي مطلوب!');
       btn.disabled = true;
       try {
-        const { res, json } = await postData('/api/admin/manga', {
-          title_ar: titleAr,
-          title_en: $('mTitleEn').value.trim(),
-          cover_url: $('mCover').value.trim(),
-          rating: Number($('mRating').value.trim()) || 9
-        });
-        if (res.ok) {
-          show(msg, '#4caf50', '✅ تم حفظ العمل بنجاح!');
-          ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = '');
-        } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل الحفظ'));
-        }
-      } catch (e) {
-        show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
-      } finally {
-        btn.disabled = false;
-      }
+        const { res, json } = await postData('/api/admin/manga', { title_ar: titleAr, title_en: $('mTitleEn').value.trim(), cover_url: $('mCover').value.trim(), rating: Number($('mRating').value.trim()) || 9 });
+        if (res.ok) { show(msg, '#4caf50', '✅ تم الحفظ!'); ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = ''); } 
+        else { show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل')); }
+      } catch (e) { show(msg, '#f44336', '❌ تعذر الاتصال'); } finally { btn.disabled = false; }
     });
   </script>
 </body>
