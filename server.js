@@ -11,6 +11,7 @@ const { spawn } = require('node:child_process');
 const path = require('node:path');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = Number(process.env.PORT || 3000);
 const DB_FILE = process.env.DB_FILE || path.join(__dirname, 'data', 'noby.sqlite');
 const SESSION_DAYS = 14;
