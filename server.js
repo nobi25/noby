@@ -169,4 +169,16 @@ try {
 } catch (e) {
   console.error('Failed to load scraper:', e.message);
   }
+// مسار سحب المانجا الكاملة بالرابط
+app.post('/api/admin/auto-import-manga', admin, async (req, res) => {
+  try {
+    const { mangaUrl } = req.body;
+    if (!mangaUrl) return res.status(400).json({ ok: false, error: 'الرابط مطلوب' });
+    const { importFullManga } = require('./scraper.js');
+    const result = await importFullManga(mangaUrl);
+    res.json({ ok: true, data: result });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
