@@ -161,3 +161,11 @@ app.use((req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 openLocalDb(DB_FILE).then(local=>{db=local;initDb();app.listen(PORT,'0.0.0.0',()=>{console.log(`[Noby standalone] listening on ${PORT}; db=${DB_FILE}`);startEmbeddedScheduler();});}).catch(error=>{console.error('[Noby standalone] database startup failed',error);process.exit(1)});
 process.on('SIGTERM',()=>process.exit(0));
 process.on('SIGINT',()=>process.exit(0));
+// تشغيل وحدة السحب الآلي
+try {
+  const scraper = require('./scraper.js');
+  console.log('Scraper module loaded successfully');
+} catch (e) {
+  console.error('Failed to load scraper:', e.message);
+  }
+
