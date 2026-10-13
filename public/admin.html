@@ -2,22 +2,19 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة التحكم</title>
   <style>
     :root {
       --bg: #0f1115;
       --card: #161922;
-      --line: #282c39;
+      --border: #282c39;
       --field: #0d0f14;
-      --field-line: #333846;
       --text: #e8eaed;
       --gold: #e0a96d;
       --gold-hover: #c69259;
       --ok: #4caf50;
       --err: #f44336;
-      --warn: orange;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -25,86 +22,87 @@
       color: var(--text);
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       min-height: 100vh;
-      width: 100%;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
     }
     .wrap {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       margin: 0 auto;
-      padding: 20px 16px 80px 16px;
+      padding: 24px 16px 80px 16px;
     }
+    h2 { color: var(--gold); margin-top: 0; font-size: 22px; }
+    h3 { margin-top: 0; color: var(--gold); font-size: 16px; margin-bottom: 12px; }
     .card {
       background: var(--card);
       padding: 18px;
       border-radius: 12px;
       margin-bottom: 20px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--border);
     }
-    .card.accent { border-color: var(--gold); }
-    h2 { color: var(--gold); margin-top: 0; margin-bottom: 16px; font-size: 22px; }
-    h3 { margin-top: 0; color: var(--gold); font-size: 17px; margin-bottom: 12px; }
-    label { display: block; font-size: 13px; margin-bottom: 6px; color: #b8bcc6; }
-    input, button {
+    .card.gold-border { border-color: var(--gold); }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #a0a5b5; }
+    input {
       width: 100%;
       padding: 12px;
       margin-bottom: 12px;
       border-radius: 8px;
-      border: 1px solid var(--field-line);
+      border: 1px solid var(--border);
       background: var(--field);
       color: #fff;
       font-size: 14px;
-      font-family: inherit;
       display: block;
     }
     input:focus { outline: 2px solid var(--gold); }
     button {
+      width: 100%;
+      padding: 12px;
       background: var(--gold);
       color: #111;
       font-weight: bold;
-      cursor: pointer;
+      border-radius: 8px;
       border: none;
-      margin-top: 4px;
+      font-size: 15px;
+      cursor: pointer;
     }
+    button:hover { background: var(--gold-hover); }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
-    .msg { font-size: 13px; margin-top: 6px; line-height: 1.5; word-break: break-word; }
+    .msg { font-size: 13px; margin-top: 8px; line-height: 1.5; word-break: break-word; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h2>لوحة التحكم</h2>
+    <h2>لوحة تحكم الموقع</h2>
 
     <!-- صندوق تسجيل الدخول -->
     <div class="card" id="authBox">
       <h3>🔐 تسجيل دخول الإدارة</h3>
-      <label>اسم المستخدم أو البريد</label>
-      <input type="text" id="adminUser" placeholder="أدخل البريد أو المستخدم">
+      <label>اسم المستخدم أو البريد الإلكتروني</label>
+      <input type="text" id="adminUser" placeholder="أدخل البريد أو اسم المستخدم">
       <label>كلمة المرور</label>
       <input type="password" id="adminPass" placeholder="أدخل كلمة المرور">
       <button type="button" id="loginBtn">تسجيل الدخول</button>
       <div id="loginMsg" class="msg"></div>
     </div>
 
-    <!-- سحب مانجا كاملة -->
-    <div class="card accent">
+    <!-- صندوق السحب الآلي -->
+    <div class="card gold-border">
       <h3>🚀 سحب مانجا كاملة (MangaDex)</h3>
-      <label>رابط المانجا أو المعرف</label>
-      <input type="text" id="fullMangaUrl" placeholder="الصق الرابط هنا" dir="ltr">
+      <label>رابط العمل من MangaDex أو المعرف</label>
+      <input type="text" id="fullMangaUrl" placeholder="الصق الرابط هنا (يقبل روابط المشاركة أيضاً)" dir="ltr">
       <button type="button" id="importBtn">جلب البيانات والغلاف تلقائياً</button>
       <div id="importMsg" class="msg"></div>
     </div>
 
-    <!-- إضافة عمل يدوياً -->
+    <!-- الإضافة اليدوية -->
     <div class="card">
       <h3>إضافة عمل يدوياً</h3>
       <label>عنوان العمل (عربي) *</label>
       <input type="text" id="mTitleAr">
       <label>العنوان (إنجليزي)</label>
       <input type="text" id="mTitleEn" dir="ltr">
-      <label>رابط الغلاف (https)</label>
+      <label>رابط صورة الغلاف</label>
       <input type="url" id="mCover" dir="ltr">
       <label>التقييم</label>
       <input type="number" id="mRating" min="0" max="10" step="0.1" placeholder="9.5">
@@ -122,18 +120,18 @@
       el.textContent = text;
     }
 
-    async function postJson(url, body) {
+    async function postData(url, data) {
       const res = await fetch(url, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(data)
       });
-      const data = await res.json().catch(() => ({}));
-      return { res, data };
+      const json = await res.json().catch(() => ({}));
+      return { res, json };
     }
 
-    // تسجيل الدخول الصحيح عبر السيرفر
+    // تسجيل الدخول
     $('loginBtn').addEventListener('click', async () => {
       const btn = $('loginBtn');
       const msg = $('loginMsg');
@@ -141,62 +139,61 @@
       btn.disabled = true;
 
       try {
-        const { res, data } = await postJson('/api/auth/login', {
+        const { res, json } = await postData('/api/auth/login', {
           username: $('adminUser').value.trim(),
           password: $('adminPass').value
         });
         if (res.ok) {
-          show(msg, '#4caf50', '✅ تم تسجيل الدخول بنجاح! يمكنك السحب الآن.');
+          show(msg, '#4caf50', '✅ تم تسجيل الدخول بنجاح! يمكنك الآن سحب الأعمال.');
           $('authBox').style.borderColor = '#4caf50';
         } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (data.error || 'بيانات الدخول غير صحيحة'));
+          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'بيانات الدخول غير صحيحة'));
         }
-      } catch (err) {
+      } catch (e) {
         show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
       } finally {
         btn.disabled = false;
       }
     });
 
-    // سحب مانجا كاملة
+    // السحب الآلي
     $('importBtn').addEventListener('click', async () => {
       const btn = $('importBtn');
-      const urlInput = $('fullMangaUrl');
       const msg = $('importMsg');
-      const raw = urlInput.value.trim();
+      const raw = $('fullMangaUrl').value.trim();
 
       const match = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
       if (!match) {
-        show(msg, 'orange', '⚠️ يرجى وضع رابط MangaDex صالح!');
+        show(msg, 'orange', '⚠️ الرابط لا يحتوي على معرف مانجا صالح!');
         return;
       }
 
-      show(msg, '#e0a96d', '⏳ جاري الاتصال وسحب البيانات والغلاف من MangaDex...');
+      show(msg, '#e0a96d', '⏳ جاري جلب التفاصيل والغلاف من MangaDex...');
       btn.disabled = true;
 
       try {
-        const { res, data } = await postJson('/api/admin/auto-import-manga', { mangaUrl: match[0] });
+        const { res, json } = await postData('/api/admin/auto-import-manga', { mangaUrl: match[0] });
 
         if (res.status === 401 || res.status === 403) {
-          show(msg, '#f44336', '❌ يرجى تسجيل الدخول أولاً من الصندوق في الأعلى!');
+          show(msg, '#f44336', '❌ يجب تسجيل الدخول من الصندوق العلوي أولاً!');
           return;
         }
 
-        if (res.ok && data.ok) {
-          const d = data.data || {};
-          show(msg, '#4caf50', `✅ تم سحب العمل بنجاح! الاسم: [${d.title}] (المعرف: ${d.mangaId})`);
-          urlInput.value = '';
+        if (res.ok && json.ok) {
+          const d = json.data || {};
+          show(msg, '#4caf50', `✅ تم سحب العمل بنجاح! العنوان: [${d.title}] (معرف: ${d.mangaId})`);
+          $('fullMangaUrl').value = '';
         } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (data.error || 'فشلت عملية السحب'));
+          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل السحب'));
         }
-      } catch (err) {
+      } catch (e) {
         show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
       } finally {
         btn.disabled = false;
       }
     });
 
-    // حفظ عمل يدوي
+    // الحفظ اليدوي
     $('saveBtn').addEventListener('click', async () => {
       const btn = $('saveBtn');
       const msg = $('manualMsg');
@@ -209,7 +206,7 @@
 
       btn.disabled = true;
       try {
-        const { res, data } = await postJson('/api/admin/manga', {
+        const { res, json } = await postData('/api/admin/manga', {
           title_ar: titleAr,
           title_en: $('mTitleEn').value.trim(),
           cover_url: $('mCover').value.trim(),
@@ -219,7 +216,7 @@
           show(msg, '#4caf50', '✅ تم حفظ العمل بنجاح!');
           ['mTitleAr', 'mTitleEn', 'mCover', 'mRating'].forEach(id => $(id).value = '');
         } else {
-          show(msg, '#f44336', '❌ خطأ: ' + (data.error || 'فشل الحفظ'));
+          show(msg, '#f44336', '❌ خطأ: ' + (json.error || 'فشل الحفظ'));
         }
       } catch (e) {
         show(msg, '#f44336', '❌ تعذر الاتصال بالسيرفر');
